@@ -2,6 +2,7 @@ import pytest
 import sqlalchemy.exc
 
 from snakeskin.models.tenant import Tenant
+from snakeskin.models.user import User
 
 
 class TestTenant:
@@ -26,3 +27,15 @@ class TestTenant:
 
         db_session.commit()
         assert tenant.id > 0
+
+    '''Users per tenant'''
+    def test_users_per_tenant(self, fixture_tenant_users):
+        tenant = Tenant.query.filter_by(name='Faber College').first()
+        assert tenant
+
+        users = User.query.filter_by(tenant_id=tenant.id).all()
+        assert len(users) == 2
+        assert users[0].id
+        assert users[0].external_id
+        assert users[0].tenant_id == tenant.id
+        assert users[1].tenant_id == tenant.id
